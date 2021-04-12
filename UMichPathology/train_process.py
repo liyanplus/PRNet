@@ -140,12 +140,6 @@ def train_proc(min_grid_scale=1,
             raw_data1 = fo.read_file(train_file_path1)
             raw_data2 = fo.read_file(train_file_path2)
 
-            hf1 = fo.read_human_feature(train_file_path1)
-            hf2 = fo.read_human_feature(train_file_path2)
-
-            hf1 = th.from_numpy(hf1).to(device)
-            hf2 = th.from_numpy(hf2).to(device)
-
             for partial_idx, (partial_data1, partial_data2) in enumerate(zip(
                     da.get_partial_data(raw_data1),
                     da.get_partial_data(raw_data2)
@@ -170,7 +164,7 @@ def train_proc(min_grid_scale=1,
                     core_point_idxs1 = core_point_idxs1.to(device)
 
                     batch_pred_ys[idx], pred_pr1 = classifier(augmented_data1, neighborhood_tensor1,
-                                                              core_point_idxs1, hf1)
+                                                              core_point_idxs1)
                     batch_true_ys[idx] = cur_y1
 
                     if batch_pred_ys[idx] >= 0.5 and batch_true_ys[idx] == 1:
@@ -192,7 +186,7 @@ def train_proc(min_grid_scale=1,
                     core_point_idxs2 = core_point_idxs2.to(device)
 
                     batch_pred_ys[idx + 1], pred_pr2 = classifier(augmented_data2, neighborhood_tensor2,
-                                                                  core_point_idxs2, hf2)
+                                                                  core_point_idxs2)
                     batch_true_ys[idx + 1] = cur_y2
 
                     pr_diff_sum += 1 / (th.norm(

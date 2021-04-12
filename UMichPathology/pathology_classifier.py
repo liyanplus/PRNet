@@ -25,7 +25,7 @@ class PathologyClassifier(th_nn.Module):
                             leaky_relu_slope)
 
         self.pr_representation_dim = pr_representation_dim
-        self.classify_linear1 = th_nn.Linear(feature_type_count * feature_type_count * pr_representation_dim + 281, 4096)
+        self.classify_linear1 = th_nn.Linear(feature_type_count * feature_type_count * pr_representation_dim, 4096)
         self.classify_linear2 = th_nn.Linear(4096, 4096)
         self.classify_linear3 = th_nn.Linear(4096, 1)
         self.classify_activate = th_nn.LeakyReLU(negative_slope=leaky_relu_slope)
@@ -33,15 +33,12 @@ class PathologyClassifier(th_nn.Module):
 
     def forward(self, raw_data,
                 neighborhood_tensor,
-                core_point_idxs,
-                hf):
+                core_point_idxs):
         """
         docstring
         """
         pr_representations = self.pr_net(raw_data, neighborhood_tensor, core_point_idxs)
 
-        prr = th.cat((pr_representations, hf)).float()
-
-        x = self.classify_activate(self.classify_linear1(prr))
+        x = self.classify_activate(self.classify_linear1(pr_representations))
         x = self.classify_activate(self.classify_linear2(x))
         return self.final(self.classify_linear3(x)), pr_representations
